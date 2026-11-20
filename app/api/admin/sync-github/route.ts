@@ -1,2 +1,32 @@
-import {NextResponse} from 'next/server';import {isAdmin} from '../../../../lib/auth';import {adminSupabase} from '../../../../lib/supabase';
-export async function POST(){if(!isAdmin())return NextResponse.json({error:'Unauthorized'},{status:401});if(!adminSupabase)return NextResponse.json({error:'Server database key is missing'},{status:500});const username=process.env.GITHUB_USERNAME;if(!username)return NextResponse.json({error:'GitHub username is not configured'},{status:500});const headers:{[k:string]:string}={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','User-Agent':'Hermela-Portfolio'};if(process.env.GITHUB_TOKEN)headers.Authorization=`Bearer ${process.env.GITHUB_TOKEN}`;const r=await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`,{headers,cache:'no-store'});if(!r.ok)return NextResponse.json({error:`GitHub sync failed (${r.status})`},{status:502});const repos=await r.json();const rows=repos.filter((x:any)=>!x.fork).map((x:any)=>({title:x.name,description:x.description,github_url:x.html_url,live_url:x.homepage||null,image_url:null,github_owner:x.owner?.login||username,github_repo:x.name,topics:Array.isArray(x.topics)?x.topics:[],stars:x.stargazers_count||0,forks:x.forks_count||0,featured:false,is_public:!x.private,display_order:0}));for(const row of rows){const {error}=await adminSupabase.from('projects').upsert(row,{onConflict:'github_owner,github_repo'});if(error)return NextResponse.json({error:error.message},{status:500});}return NextResponse.json({ok:true,count:rows.length});}
+import {NextResponse} from 'next/server';
+import {isAdmin} from '../../../../lib/auth';
+
+const topic = (process.env.GITHUB_PROJECT_TOPIC || 'hermela-portfolio').trim().toLowerCase();
+
+export const runtime = 'nodejs';
+
+export async function POST(){
+  if(!isAdmin()) return NextResponse.json({error:'Unauthorized'},{status:401});
+  const username = process.env.GITHUB_USERNAME;
+  if(!username) return NextResponse.json({error:'GitHub username is not configured'},{status:500});
+
+  const headers:Record<string,string> = {
+    Accept:'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28',
+    'User-Agent':'Hermela-Portfolio'
+  };
+  if(process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+
+  try{
+    const r = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?per_page=100&sort=updated`,{headers,cache:'no-store'});
+    if(!r.ok){
+      const body = await r.text().catch(()=> '');
+      return NextResponse.json({error:`GitHub sync failed (${r.status})${body?`: ${body.slice(0,180)}`:''}`},{status:502});
+    }
+    const repos = await r.json();
+    const matching = repos.filter((x:any)=>!x.fork && !x.archived && !x.private && Array.isArray(x.topics) && x.topics.some((t:string)=>t.toLowerCase()===topic));
+    return NextResponse.json({ok:true,count:matching.length,topic,message:`Found ${matching.length} public project${matching.length===1?'':'s'} with topic “${topic}”.`});
+  }catch(error:any){
+    return NextResponse.json({error:error?.message||'Unable to reach GitHub'},{status:502});
+  }
+}

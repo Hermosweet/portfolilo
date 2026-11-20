@@ -1,6 +1,6 @@
 export type Project={id:string;title:string;description:string|null;github_url:string|null;live_url:string|null;image_url:string|null;github_owner:string|null;github_repo:string|null;topics:string[];stars:number;forks:number;featured:boolean;is_public:boolean;display_order:number;};
 export type Experience={id:string;company:string;role:string;description:string|null;location:string|null;start_date:string|null;end_date:string|null;technologies:string[];is_current:boolean;is_public:boolean;display_order:number;};
-export type Certificate={id:string;title:string;issuer:string|null;issue_date:string|null;credential_id:string|null;credential_url:string|null;image_url:string|null;is_public:boolean;display_order:number;};
+export type Certificate={id:string;title:string;issuer:string|null;issue_date:string|null;credential_id:string|null;credential_url:string|null;image_url:string|null;description?:string|null;is_public:boolean;display_order:number;};
 export type Skill={id:string;name:string;category:string|null;level:number|null;is_public:boolean;display_order:number;};
-export type Profile={id:string;name:string|null;title:string|null;bio:string|null;email:string|null;phone:string|null;location:string|null;avatar_url:string|null;resume_url:string|null;github_url:string|null;linkedin_url:string|null;telegram_url:string|null;favicon_url:string|null;};
+export type Profile={id:string;name:string|null;title:string|null;bio:string|null;email:string|null;phone:string|null;location:string|null;avatar_url:string|null;resume_url:string|null;github_url:string|null;linkedin_url:string|null;telegram_url:string|null;};
 export type ContactMessage={id:string;name:string;email:string;message:string;created_at:string;read:boolean;};
