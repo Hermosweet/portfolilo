@@ -1,0 +1,4 @@
+import type {Metadata} from 'next';import {Inter,Space_Grotesk} from 'next/font/google';import {Analytics} from '@vercel/analytics/next';import './globals.css';
+const inter=Inter({subsets:['latin'],variable:'--font-inter'});const space=Space_Grotesk({subsets:['latin'],variable:'--font-space'});
+export const metadata:Metadata={title:'Hermela Mekonnen — Front-End Developer',description:'A 3D green portfolio for Hermela Mekonnen.',icons:{icon:'/api/favicon',shortcut:'/api/favicon'}};
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body className={`${inter.variable} ${space.variable}`}>{children}<Analytics/></body></html>}

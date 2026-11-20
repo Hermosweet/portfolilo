@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="loading-screen"><div className="loader-orbit"><span/><span/><span/></div><p>Entering Hermela’s space</p></div>}

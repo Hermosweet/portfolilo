@@ -1,0 +1,1 @@
+import Link from 'next/link';export default function NotFound(){return <main className="not-found"><div className="void-bubble"><span>404</span></div><p className="eyebrow">Signal lost</p><h1>This page drifted out of orbit.</h1><p>The page you requested doesn’t exist.</p><Link className="btn btn-dark" href="/">Return home</Link></main>}

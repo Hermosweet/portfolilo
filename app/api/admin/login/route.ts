@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {setSession} from '../../../../lib/auth';
+export async function POST(req:Request){const b=await req.json().catch(()=>({}));if(String(b.username||'')!==(process.env.ADMIN_USERNAME||'')||String(b.password||'')!==(process.env.ADMIN_PASSWORD||''))return NextResponse.json({error:'Invalid credentials'},{status:401});setSession();return NextResponse.json({ok:true});}
